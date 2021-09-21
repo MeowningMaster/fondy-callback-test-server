@@ -10,9 +10,20 @@ import { port } from "./port.ts";
 const callbacks = new Array<{ data: string; signature: string }>();
 const router = new Router()
   .get("/", (ctx: Context) => {
-    ctx.response.body = callbacks.map(x => JSON.stringify(x)).join(",\n");
+    ctx.response.body = callbacks.map((x) => JSON.stringify(x)).join(",\n");
   })
   .post("/callback", (ctx: Context) => {
+    const callbackIps = [
+      "54.76.178.89",
+      "54.154.216.60",
+      "23.105.225.142",
+      "23.108.217.143",
+    ];
+
+    if (!callbackIps.includes(ctx.request.ip)) {
+      ctx.throw(403, "Only fondy callback ips");
+    }
+
     const data = ctx.request.url.searchParams.get("data") ?? "[null]";
     const signature = ctx.request.url.searchParams.get("signature") ?? "[null]";
     callbacks.push({ data, signature });
